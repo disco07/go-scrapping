@@ -14,8 +14,8 @@ import (
 const base_url = "https://github.com/"
 
 var (
-	username = "disco07"
-	password = "MAmanko91"
+	username = "****"
+	password = "****"
 )
 
 type App struct {
@@ -85,8 +85,7 @@ func (a App) GetProjects() []Project {
 
 	var projects []Project
 
-	doc.Find(".codeRepository").Each(func(i int, s *goquery.Selection) {
-		fmt.Println(s.Text())
+	doc.Find(".js-user-profile-bio").Each(func(i int, s *goquery.Selection) {
 		name := strings.TrimSpace(s.Text())
 		project := Project{
 			Name: name,
