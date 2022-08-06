@@ -85,10 +85,10 @@ func (a App) GetProjects() []Project {
 
 	var projects []Project
 
-	doc.Find(".js-user-profile-bio").Each(func(i int, s *goquery.Selection) {
-		name := strings.TrimSpace(s.Text())
+	doc.Find("#user-repositories-list li").Each(func(i int, s *goquery.Selection) {
+		title := s.Find("h3 a").Text()
 		project := Project{
-			Name: name,
+			Name: strings.TrimSpace(title),
 		}
 		projects = append(projects, project)
 	})
