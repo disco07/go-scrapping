@@ -1,18 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
+	"strings"
 )
 
-const base_url = "https://gitlab.com"
+const base_url = "https://github.com/"
 
 var (
-	username = "dkone"
-	password = "MAmanko91**"
+	username = "disco07"
+	password = "MAmanko91"
 )
 
 type App struct {
@@ -27,17 +30,13 @@ type Project struct {
 	Name string
 }
 
-func (a App) getToken() Token {
+func (a App) GetToken() Token {
 	// Request the HTML page.
-	res, err := a.Client.Get("https://steering-tools-v3.novovitae.fr/login")
+	res, err := a.Client.Get(base_url + "/login")
 	if err != nil {
 		log.Fatalln("Error fetching response. ", err)
 	}
-	defer func(Body io.ReadCloser) {
-		if err := Body.Close(); err != nil {
-			log.Fatal(err)
-		}
-	}(res.Body)
+	defer res.Body.Close()
 
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
@@ -46,14 +45,66 @@ func (a App) getToken() Token {
 	}
 
 	// Catch token from page login
-	token, _ := doc.Find("input[name='_csrf_token']").Attr("value")
+	token, _ := doc.Find("input[name='authenticity_token']").Attr("value")
 
 	return Token{token}
+}
+
+func (a App) Login() {
+	token := a.GetToken()
+	data := url.Values{
+		"username":    {username},
+		"password":    {password},
+		"_csrf_token": {token.Token},
+	}
+	res, err := a.Client.PostForm(base_url+"/login", data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	_, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func (a App) GetProjects() []Project {
+	// Request the HTML page.
+	res, err := a.Client.Get(base_url + "/disco07?tab=repositories")
+	if err != nil {
+		log.Fatalln("Error fetching response. ", err)
+	}
+	defer res.Body.Close()
+
+	// Load the HTML document
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal("Error loading HTTP response body. ", err)
+	}
+
+	var projects []Project
+
+	doc.Find(".codeRepository").Each(func(i int, s *goquery.Selection) {
+		fmt.Println(s.Text())
+		name := strings.TrimSpace(s.Text())
+		project := Project{
+			Name: name,
+		}
+		projects = append(projects, project)
+	})
+
+	return projects
 }
 
 func main() {
 	jar, _ := cookiejar.New(nil)
 	app := App{&http.Client{Jar: jar}}
 
-	app.getToken()
+	app.Login()
+	projects := app.GetProjects()
+
+	for index, project := range projects {
+		fmt.Printf("%d: %s\n", index+1, project.Name)
+	}
 }
