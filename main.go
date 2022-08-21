@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -76,11 +75,6 @@ func (a App) login() error {
 		return err
 	}
 	defer res.Body.Close()
-
-	_, err = ioutil.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }
