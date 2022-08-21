@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const base_url = "https://github.com/"
+const baseUrl = "https://github.com/"
 
 var (
 	username = "*****"
@@ -35,7 +35,7 @@ type Project struct {
 // return Token and error
 func (a App) GetToken() (Token, error) {
 	// Request the HTML page.
-	res, err := a.Client.Get(base_url + "/login")
+	res, err := a.Client.Get(baseUrl + "/login")
 	if err != nil {
 		log.Fatalln("Error fetching response. ", err)
 		return Token{}, err
@@ -71,7 +71,7 @@ func (a App) Login() error {
 		"password":           {password},
 		"authenticity_token": {token.Token},
 	}
-	res, err := a.Client.PostForm(base_url+"/login", data)
+	res, err := a.Client.PostForm(baseUrl+"/login", data)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (a App) Login() error {
 // return an array Project and an error
 func (a App) GetProjects() ([]Project, error) {
 	// Request the HTML page.
-	res, err := a.Client.Get(base_url + "/disco07?tab=repositories")
+	res, err := a.Client.Get(baseUrl + "/disco07?tab=repositories")
 	if err != nil {
 		fmt.Println("Error fetching response. ", err)
 		return nil, err
