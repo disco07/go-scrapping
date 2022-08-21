@@ -14,8 +14,8 @@ import (
 const base_url = "https://github.com/"
 
 var (
-	username = "****"
-	password = "****"
+	username = "*****"
+	password = "*****"
 )
 
 type App struct {
@@ -30,11 +30,12 @@ type Project struct {
 	Name string
 }
 
-func (a App) GetToken() Token {
+func (a App) GetToken() (Token, error) {
 	// Request the HTML page.
 	res, err := a.Client.Get(base_url + "/login")
 	if err != nil {
 		log.Fatalln("Error fetching response. ", err)
+		return Token{}, err
 	}
 	defer res.Body.Close()
 
@@ -42,45 +43,55 @@ func (a App) GetToken() Token {
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		log.Fatal("Error loading HTTP response body. ", err)
+		return Token{}, err
 	}
 
+	var token Token
 	// Catch token from page login
-	token, _ := doc.Find("input[name='authenticity_token']").Attr("value")
+	t, _ := doc.Find("input[name='authenticity_token']").Attr("value")
+	token.Token = t
 
-	return Token{token}
+	return token, nil
 }
 
-func (a App) Login() {
-	token := a.GetToken()
+func (a App) Login() error {
+	token, err := a.GetToken()
+	if err != nil {
+		return err
+	}
 	data := url.Values{
-		"username":    {username},
-		"password":    {password},
-		"_csrf_token": {token.Token},
+		"username":           {username},
+		"password":           {password},
+		"authenticity_token": {token.Token},
 	}
 	res, err := a.Client.PostForm(base_url+"/login", data)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer res.Body.Close()
 
 	_, err = ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
+
+	return nil
 }
 
-func (a App) GetProjects() []Project {
+func (a App) GetProjects() ([]Project, error) {
 	// Request the HTML page.
 	res, err := a.Client.Get(base_url + "/disco07?tab=repositories")
 	if err != nil {
-		log.Fatalln("Error fetching response. ", err)
+		fmt.Println("Error fetching response. ", err)
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Fatal("Error loading HTTP response body. ", err)
+		fmt.Println("Error loading HTTP response body. ", err)
+		return nil, err
 	}
 
 	var projects []Project
@@ -93,15 +104,24 @@ func (a App) GetProjects() []Project {
 		projects = append(projects, project)
 	})
 
-	return projects
+	return projects, nil
 }
 
 func main() {
-	jar, _ := cookiejar.New(nil)
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	app := App{&http.Client{Jar: jar}}
 
-	app.Login()
-	projects := app.GetProjects()
+	if err := app.Login(); err != nil {
+		log.Fatal(err)
+	}
+
+	projects, err := app.GetProjects()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for index, project := range projects {
 		fmt.Printf("%d: %s\n", index+1, project.Name)
