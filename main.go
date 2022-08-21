@@ -34,7 +34,7 @@ type Project struct {
 // return Token and error
 func (a App) getToken() (Token, error) {
 	// Request the HTML page.
-	res, err := a.Client.Get(baseUrl + "/login")
+	res, err := a.Client.Get(baseUrl + "login")
 	if err != nil {
 		fmt.Println("Error fetching response. ", err)
 		return Token{}, err
@@ -70,11 +70,15 @@ func (a App) login() error {
 		"password":           {password},
 		"authenticity_token": {token.Token},
 	}
-	res, err := a.Client.PostForm(baseUrl+"/login", data)
+	res, err := a.Client.PostForm(baseUrl+"login", data)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		return errors.New("failed to authenticate")
+	}
 
 	return nil
 }
@@ -83,7 +87,7 @@ func (a App) login() error {
 // return an array Project and an error
 func (a App) getProjects() ([]Project, error) {
 	// Request the HTML page.
-	res, err := a.Client.Get(baseUrl + "/disco07?tab=repositories")
+	res, err := a.Client.Get(baseUrl + "disco07?tab=repositories")
 	if err != nil {
 		fmt.Println("Error fetching response. ", err)
 		return nil, err
