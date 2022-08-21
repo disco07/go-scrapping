@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"io/ioutil"
@@ -48,7 +49,10 @@ func (a App) GetToken() (Token, error) {
 
 	var token Token
 	// Catch token from page login
-	t, _ := doc.Find("input[name='authenticity_token']").Attr("value")
+	t, found := doc.Find("input[name='authenticity_token']").Attr("value")
+	if !found {
+		return Token{}, errors.New("value not found")
+	}
 	token.Token = t
 
 	return token, nil
