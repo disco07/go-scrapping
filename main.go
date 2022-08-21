@@ -31,6 +31,8 @@ type Project struct {
 	Name string
 }
 
+// GetToken retrieve token on website to login later
+// return Token and error
 func (a App) GetToken() (Token, error) {
 	// Request the HTML page.
 	res, err := a.Client.Get(base_url + "/login")
@@ -58,6 +60,7 @@ func (a App) GetToken() (Token, error) {
 	return token, nil
 }
 
+// Login func to connect to a website and return an error.
 func (a App) Login() error {
 	token, err := a.GetToken()
 	if err != nil {
@@ -82,6 +85,8 @@ func (a App) Login() error {
 	return nil
 }
 
+// GetProjects retrieve a name of projects on website
+// return an array Project and an error
 func (a App) GetProjects() ([]Project, error) {
 	// Request the HTML page.
 	res, err := a.Client.Get(base_url + "/disco07?tab=repositories")
