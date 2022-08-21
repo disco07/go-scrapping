@@ -31,9 +31,9 @@ type Project struct {
 	Name string
 }
 
-// GetToken retrieve token on website to login later
+// getToken retrieve token on website to login later
 // return Token and error
-func (a App) GetToken() (Token, error) {
+func (a App) getToken() (Token, error) {
 	// Request the HTML page.
 	res, err := a.Client.Get(baseUrl + "/login")
 	if err != nil {
@@ -60,9 +60,9 @@ func (a App) GetToken() (Token, error) {
 	return token, nil
 }
 
-// Login func to connect to a website and return an error.
-func (a App) Login() error {
-	token, err := a.GetToken()
+// login func to connect to a website and return an error.
+func (a App) login() error {
+	token, err := a.getToken()
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (a App) Login() error {
 
 // GetProjects retrieve a name of projects on website
 // return an array Project and an error
-func (a App) GetProjects() ([]Project, error) {
+func (a App) getProjects() ([]Project, error) {
 	// Request the HTML page.
 	res, err := a.Client.Get(baseUrl + "/disco07?tab=repositories")
 	if err != nil {
@@ -123,11 +123,11 @@ func main() {
 	}
 	app := App{&http.Client{Jar: jar}}
 
-	if err := app.Login(); err != nil {
+	if err := app.login(); err != nil {
 		log.Fatal(err)
 	}
 
-	projects, err := app.GetProjects()
+	projects, err := app.getProjects()
 	if err != nil {
 		log.Fatal(err)
 	}
