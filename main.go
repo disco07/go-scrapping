@@ -37,7 +37,7 @@ func (a App) getToken() (Token, error) {
 	// Request the HTML page.
 	res, err := a.Client.Get(baseUrl + "/login")
 	if err != nil {
-		log.Fatalln("Error fetching response. ", err)
+		fmt.Println("Error fetching response. ", err)
 		return Token{}, err
 	}
 	defer res.Body.Close()
@@ -45,7 +45,7 @@ func (a App) getToken() (Token, error) {
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Fatal("Error loading HTTP response body. ", err)
+		fmt.Println("Error loading HTTP response body. ", err)
 		return Token{}, err
 	}
 
