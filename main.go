@@ -14,8 +14,8 @@ import (
 const baseUrl = "https://github.com/"
 
 var (
-	username = "*****"
-	password = "*****"
+	username = "disco07"
+	password = "MAmanko91"
 )
 
 type App struct {
@@ -66,7 +66,7 @@ func (a App) login() error {
 		return err
 	}
 	data := url.Values{
-		"username":           {username},
+		"login":              {username},
 		"password":           {password},
 		"authenticity_token": {token.Token},
 	}
@@ -75,6 +75,7 @@ func (a App) login() error {
 		return err
 	}
 	defer res.Body.Close()
+	fmt.Println(res.StatusCode)
 
 	if res.StatusCode != 200 {
 		return errors.New("failed to authenticate")
