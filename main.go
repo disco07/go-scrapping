@@ -14,8 +14,8 @@ import (
 const baseUrl = "https://github.com/"
 
 var (
-	username = "disco07"
-	password = "MAmanko91"
+	username = "****"
+	password = "****"
 )
 
 type App struct {
