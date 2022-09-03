@@ -11,11 +11,11 @@ import (
 	"strings"
 )
 
-const baseUrl = "https://github.com/"
+const baseUrl = "https://fr-fr.facebook.com/"
 
 var (
-	username = "****"
-	password = "****"
+	username = "konedisco@yahoo.fr"
+	password = "MAmanko91"
 )
 
 type App struct {
@@ -66,20 +66,20 @@ func (a App) login() error {
 		return err
 	}
 	data := url.Values{
-		"login":              {username},
-		"password":           {password},
+		"email":              {username},
+		"pass":               {password},
 		"authenticity_token": {token.Token},
 	}
-	res, err := a.Client.PostForm(baseUrl+"login", data)
+	res, err := a.Client.PostForm(baseUrl, data)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
 	fmt.Println(res.StatusCode)
 
-	if res.StatusCode != 200 {
-		return errors.New("failed to authenticate")
-	}
+	//if res.StatusCode != 200 {
+	//	return errors.New("failed to authenticate")
+	//}
 
 	return nil
 }
