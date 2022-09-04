@@ -11,11 +11,11 @@ import (
 	"strings"
 )
 
-const baseUrl = "https://fr-fr.facebook.com/"
+const baseUrl = "https://gitlab.ledev.in/"
 
 var (
-	username = "konedisco@yahoo.fr"
-	password = "MAmanko91"
+	username = "****"
+	password = "****"
 )
 
 type App struct {
@@ -34,7 +34,7 @@ type Project struct {
 // return Token and error
 func (a App) getToken() (Token, error) {
 	// Request the HTML page.
-	res, err := a.Client.Get(baseUrl + "login")
+	res, err := a.Client.Get(baseUrl + "users/sign_in")
 	if err != nil {
 		fmt.Println("Error fetching response. ", err)
 		return Token{}, err
@@ -66,20 +66,20 @@ func (a App) login() error {
 		return err
 	}
 	data := url.Values{
-		"email":              {username},
-		"pass":               {password},
+		"user[login]":        {username},
+		"user[password]":     {password},
 		"authenticity_token": {token.Token},
 	}
-	res, err := a.Client.PostForm(baseUrl, data)
+	res, err := a.Client.PostForm(baseUrl+"users/sign_in", data)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
 	fmt.Println(res.StatusCode)
 
-	//if res.StatusCode != 200 {
-	//	return errors.New("failed to authenticate")
-	//}
+	if res.StatusCode != 200 {
+		return errors.New("failed to authenticate")
+	}
 
 	return nil
 }
@@ -88,7 +88,7 @@ func (a App) login() error {
 // return an array Project and an error
 func (a App) getProjects() ([]Project, error) {
 	// Request the HTML page.
-	res, err := a.Client.Get(baseUrl + "disco07?tab=repositories")
+	res, err := a.Client.Get(baseUrl)
 	if err != nil {
 		fmt.Println("Error fetching response. ", err)
 		return nil, err
@@ -104,8 +104,8 @@ func (a App) getProjects() ([]Project, error) {
 
 	var projects []Project
 
-	doc.Find("#user-repositories-list li").Each(func(i int, s *goquery.Selection) {
-		title := s.Find("h3 a").Text()
+	doc.Find(".projects-list li").Each(func(i int, s *goquery.Selection) {
+		title := s.Find(".project-name").Text()
 		project := Project{
 			Name: strings.TrimSpace(title),
 		}
